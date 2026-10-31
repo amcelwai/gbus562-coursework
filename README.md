@@ -7,4 +7,4 @@ This repository holds my coursework for GBUS-562, a course on AI language models
 
 ## Weekly Work
 
-1. Week 1: an AI-coded, retro arcade-style Connect 4 game (1 player vs CPU or 2 players) in a single HTML/JavaScript file, built with Claude Code — see [`01_coursework/week-01/`](01_coursework/week-01/).
+1. Week 1: an AI-coded, retro arcade-style Connect 4 game (1 player vs CPU or 2 players) in a single HTML/JavaScript file, built with Claude Code — see [`week-01/`](week-01/).
