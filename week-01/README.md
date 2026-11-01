@@ -2,7 +2,7 @@
 
 ## Assignment
 
-Use an AI coding assistant to build a simple but charming one- or two-player game as a single HTML/JavaScript file, themed as a classic retro arcade game, and verify that it plays properly. The exact prompt is in [`prompt.md`](prompt.md).
+Use an AI coding assistant to build a simple but charming one- or two-player game as a single HTML/JavaScript file, themed as a classic retro arcade game, and verify that it plays properly.
 
 ## What was built
 
