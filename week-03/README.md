@@ -60,4 +60,4 @@ I asked the same question before and after moving Version 7 to `larkfield-docs-a
 
 ## Reflection
 
-_Add your notes here: what worked well, what you would change, and what you learned about building a RAG tool with an AI coding assistant._
+See [`writeup.md`](writeup.md) for my full writeup: what I built, why I chose this chunking approach, an example run (q4), and a reflection on the outdated fee schedule fix and the out-of-scope mortgage question (q6).
