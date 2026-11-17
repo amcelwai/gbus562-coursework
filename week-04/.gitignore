@@ -1,0 +1,4 @@
+# Local Chroma database for search_policy (rebuild with: hr_mcp_server.py --rebuild)
+chroma/
+# Agent drafts (outputs of agent.py; not committed)
+drafts/

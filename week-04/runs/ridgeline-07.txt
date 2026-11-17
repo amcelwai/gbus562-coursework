@@ -1,0 +1,37 @@
+Sender:  logan.brooks@ridgelinehotels.example
+Subject: Days off
+Email:   /Users/andrewrjmcelwain/Documents/04_Education/Formal Education/UMW Masters/Graduate Classes/GBUS-562/gbus562-coursework/week-04/ridgeline-hotels/sample-emails/07-logan-seasonal.eml
+Org:     /Users/andrewrjmcelwain/Documents/04_Education/Formal Education/UMW Masters/Graduate Classes/GBUS-562/gbus562-coursework/week-04/ridgeline-hotels
+Model:   claude-sonnet-5
+Starting hr_mcp_server.py --org ridgeline-hotels --as-employee logan.brooks@ridgelinehotels.example
+
+Tools offered: search_policy, get_leave_balance, save_reply
+
+Step 1: get_leave_balance
+  input:  {}
+  result (error): Error executing tool get_leave_balance: No employee record matches 'logan.brooks@ridgelinehotels.example'. Do not state, estimate, or guess any leave balance for this person. Say that their balance could not be found and that someone from HR will follow up.
+
+Step 2: save_reply
+  input:  {"reply_text": "Hi Logan,\n\nThanks for reaching out! I tried to look up your current PTO balance, but I wasn't able to find a record matching your account in our system. Rather than guess, I've flagged this for our People & Culture team, and someone will follow up with you directly to get this sorted and confirm your accurate PTO balance.\n\nThanks for your patience!\n\nBest,\nHR Assistant\n", "needs_human_review": true}
+  result: Draft saved to drafts/20261116-194657-ridgeline-hotels-07-logan-seasonal.txt. It has not been sent.
+
+[Claude] I've saved a draft reply to Logan. Since his employee record couldn't be found in the system to retrieve his PTO balance, I flagged this for human review so People & Culture can look into it and follow up with the correct information.
+
+========================================================================
+Stopped: Claude finished its reply (no more tool requests).
+Tool calls: 2
+========================================================================
+Draft saved to /Users/andrewrjmcelwain/Documents/04_Education/Formal Education/UMW Masters/Graduate Classes/GBUS-562/gbus562-coursework/week-04/drafts/20261116-194657-ridgeline-hotels-07-logan-seasonal.txt
+
+DRAFT
+Hi Logan,
+
+Thanks for reaching out! I tried to look up your current PTO balance, but I wasn't able to find a record matching your account in our system. Rather than guess, I've flagged this for our People & Culture team, and someone will follow up with you directly to get this sorted and confirm your accurate PTO balance.
+
+Thanks for your patience!
+
+Best,
+HR Assistant
+Needs human review: true
+========================================================================
+Tokens: 4,568 input, 324 output

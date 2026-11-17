@@ -1,0 +1,93 @@
+Sender:  brittany.cole@ridgelinehotels.example
+Subject: Honeymoon
+Email:   /Users/andrewrjmcelwain/Documents/04_Education/Formal Education/UMW Masters/Graduate Classes/GBUS-562/gbus562-coursework/week-04/ridgeline-hotels/sample-emails/03-brittany-honeymoon.eml
+Org:     /Users/andrewrjmcelwain/Documents/04_Education/Formal Education/UMW Masters/Graduate Classes/GBUS-562/gbus562-coursework/week-04/ridgeline-hotels
+Model:   claude-sonnet-5
+Starting hr_mcp_server.py --org ridgeline-hotels --as-employee brittany.cole@ridgelinehotels.example
+
+Tools offered: search_policy, get_leave_balance, save_reply
+
+Step 1: get_leave_balance
+  input:  {}
+  result: {
+  "name": "Brittany Cole",
+  "email": "brittany.cole@ridgelinehotels.example",
+  "balances": {
+    "PTO Days Remaining": 4,
+    "Sick Days Remaining": 3
+  }
+}
+
+Step 2: search_policy
+  input:  {"query": "requesting consecutive PTO days in advance"}
+  result: {
+  "source": "pto-policy.html",
+  "document": "Paid Time Off (PTO) Policy",
+  "section": "Requesting PTO",
+  "document_info": "Effective this year. Owner: People and Culture.",
+  "similarity": 0.671,
+  "text": "Document: Paid Time Off (PTO) Policy\nSection: Requesting PTO\n\nRequest PTO through you...
+
+Step 3: search_policy
+  input:  {"query": "not enough PTO options unpaid leave or borrowing days"}
+  result: {
+  "source": "pto-policy.html",
+  "document": "Paid Time Off (PTO) Policy",
+  "section": "Borrowing PTO you haven't earned yet",
+  "document_info": "Effective this year. Owner: People and Culture.",
+  "similarity": 0.736,
+  "text": "Document: Paid Time Off (PTO) Policy\nSection: Borrowing PTO you h...
+
+[Claude] Hi Brittany,
+
+Congratulations on your upcoming wedding! 🎉
+
+I checked your balance, and you currently have **4 PTO days** remaining. Since you'd like to take 6 consecutive days, you're short by 2 days, but you do have a couple of options:
+
+1. **Borrow PTO in advance** – Ridgeline lets you borrow up to 3 PTO days from what you'll earn in the next six months. This requires your general manager's approval and must be requested at least 30 days ahead of time. If you leave Ridgeline before earning those days back, their value would be deducted from your final paycheck. (Source: pto-policy.html, "Borrowing PTO you haven't earned yet")
+
+2. **Combine with an unpaid day or adjust the length** – you could also consider using your 4 available PTO days plus one or two unpaid days, if your supervisor is able to accommodate that, though this would need to be arranged directly with them since it isn't a specific policy provision.
+
+Also, keep in mind the request timing rule: since you're requesting 5+ consecutive days, you'll need your supervisor's approval at least **30 days ahead of time**, and if any of those days fall on a blackout date, you'd also need your general manager's approval. (Source: pto-policy.html, "Requesting PTO" and "Blackout dates")
+
+I'd recommend submitting your request through the scheduling system as soon as possible, noting that you'd like to borrow the extra days, so your supervisor and GM have time to review it well before your 30-day window closes.
+
+Congratulations again, and I hope you have a wonderful honeymoon!
+
+Best,
+People and Culture Team
+
+Step 4: save_reply
+  input:  {"reply_text": "Hi Brittany,\n\nCongratulations on your upcoming wedding! 🎉\n\nI checked your balance, and you currently have 4 PTO days remaining. Since you'd like to take 6 consecutive days, you're short by 2 days, but you do have a couple of options:\n\n1. Borrow PTO in advance – Ridgeline lets you borrow up to 3 PTO days from what you'll earn in the next six months. This requires your general manager's approval and must be requested at least 30 days ahead of time. If you leave Ridgeline before earning those days back, their value would be deducted from your final paycheck. (Source: pto-policy.html, \"Borrowing PTO you haven't earned yet\")\n\n2. Combine with an unpaid day or adjust the length – you could also consider using your 4 available PTO days plus one or two unpaid days, if your supervisor is able to accommodate that, though this would need to be arranged directly with them since it isn't covered by a specific policy provision.\n\nAlso, keep in mind the request timing rule: since you're requesting 5+ consecutive days, you'll need your supervisor's approval at least 30 days ahead of time, and if any of those days fall on a blackout date, you'd also need your general manager's approval. (Source: pto-policy.html, \"Requesting PTO\" and \"Blackout dates\")\n\nI'd recommend submitting your request through the scheduling system as soon as possible, noting that you'd like to borrow the extra days, so your supervisor and GM have time to review it well before your 30-day window closes.\n\nCongratulations again, and I hope you have a wonderful honeymoon!\n\nBest,\nPeople and Culture Team", "needs_human_review": false}
+  result: Draft saved to drafts/20261116-193051-ridgeline-hotels-03-brittany-honeymoon.txt. It has not been sent.
+
+[Claude] I've drafted a reply to Brittany explaining her current PTO balance (4 days), the shortfall for her 6-day request, and the borrowing option available per policy, along with the required approval timelines. The draft has been saved for review — no human escalation needed since this was a standard policy question.
+
+========================================================================
+Stopped: Claude finished its reply (no more tool requests).
+Tool calls: 4
+========================================================================
+Draft saved to /Users/andrewrjmcelwain/Documents/04_Education/Formal Education/UMW Masters/Graduate Classes/GBUS-562/gbus562-coursework/week-04/drafts/20261116-193051-ridgeline-hotels-03-brittany-honeymoon.txt
+
+DRAFT
+Hi Brittany,
+
+Congratulations on your upcoming wedding! 🎉
+
+I checked your balance, and you currently have 4 PTO days remaining. Since you'd like to take 6 consecutive days, you're short by 2 days, but you do have a couple of options:
+
+1. Borrow PTO in advance – Ridgeline lets you borrow up to 3 PTO days from what you'll earn in the next six months. This requires your general manager's approval and must be requested at least 30 days ahead of time. If you leave Ridgeline before earning those days back, their value would be deducted from your final paycheck. (Source: pto-policy.html, "Borrowing PTO you haven't earned yet")
+
+2. Combine with an unpaid day or adjust the length – you could also consider using your 4 available PTO days plus one or two unpaid days, if your supervisor is able to accommodate that, though this would need to be arranged directly with them since it isn't covered by a specific policy provision.
+
+Also, keep in mind the request timing rule: since you're requesting 5+ consecutive days, you'll need your supervisor's approval at least 30 days ahead of time, and if any of those days fall on a blackout date, you'd also need your general manager's approval. (Source: pto-policy.html, "Requesting PTO" and "Blackout dates")
+
+I'd recommend submitting your request through the scheduling system as soon as possible, noting that you'd like to borrow the extra days, so your supervisor and GM have time to review it well before your 30-day window closes.
+
+Congratulations again, and I hope you have a wonderful honeymoon!
+
+Best,
+People and Culture Team
+Needs human review: false
+========================================================================
+Tokens: 9,679 input, 1,520 output
