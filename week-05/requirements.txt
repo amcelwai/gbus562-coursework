@@ -1,0 +1,4 @@
+# week-05: supply-data MCP server (supply_mcp_server.py)
+mcp==2.3.0
+pydantic==2.14.3
+anthropic==2.7.0

@@ -1,0 +1,22 @@
+DRAFT - NOT SENT
+To: l.moreno@kendalltire.example
+Subject: Re: PO-7795 - TR-29 tires - two options, please choose
+Recipient type: supplier
+Source email: 02-kendall-tire-options.eml
+Review: APPROVE after 2 revision(s)
+Needs a person: no
+
+Hi Lisa,
+
+Thank you for the update on PO-7795 and for outlining the two options.
+
+As we understand it:
+- Option 1: 160 tires ship on day 8 (original schedule), with the remaining 240 tires on day 22.
+- Option 2: all 400 tires ship together on day 12, four days after the original schedule.
+
+Is there any way to reduce this gap further — for example, by shipping a larger portion of the 400 units sooner than day 8 or day 12? Any improvement on timing or quantity would help us minimize disruption.
+
+We will confirm our choice within the two-business-day window you've given us.
+
+Thanks,
+Purchasing, Brookfield Bicycle Company

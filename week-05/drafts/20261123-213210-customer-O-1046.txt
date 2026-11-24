@@ -1,0 +1,19 @@
+DRAFT - NOT SENT
+To: buying@hilltopoutfitters.example
+Subject: Update on your order O-1046
+Recipient type: customer
+Source email: 02-kendall-tire-options.eml
+Review: APPROVE after 0 revision(s)
+Needs a person: no
+
+Subject: Update on Order O-1046
+
+Dear Hilltop Outfitters,
+
+We want to let you know that your order O-1046 for 80 Trail 29 bikes is now expected to ship 3 days later than originally planned. We're sorry for this delay.
+
+The delay is due to a delay in a part from one of our suppliers.
+
+We appreciate your patience and will keep you informed of any further updates regarding your order.
+
+Customer Service, Brookfield Bicycle Company
