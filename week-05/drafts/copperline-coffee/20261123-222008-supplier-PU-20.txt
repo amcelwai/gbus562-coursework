@@ -1,0 +1,25 @@
+DRAFT - NOT SENT
+To: d.kessler@danforthpump.example
+Subject: Re: PO-5512 - PU-20 pumps - partial shipment
+Recipient type: supplier
+Source email: 01-danforth-pump-delay.eml
+Review: APPROVE after 0 revision(s)
+Needs a person: YES
+  - an order at risk has a late penalty: O-2203, O-2205
+  - the brief has decisions for a person; a person must decide before this reply goes out
+
+Subject: RE: PO-5512 - PU-20 pumps - partial shipment
+
+Hello Diane,
+
+Thank you for the update. To confirm our understanding: 40 of the 200 PU-20 pumps will arrive on the original scheduled date, with the remaining 160 delayed by 15 days.
+
+This shortfall affects multiple downstream orders, totaling 55 units short, with delays of up to 15 days on those orders. We are not able to share customer names or order details, but we can confirm the impact is material to our schedule.
+
+Given this, we'd ask that you look at whether any portion of the 160 units could be shipped sooner, even in smaller partial batches, as that would help reduce the delay on our end. Please let us know if an earlier partial delivery is possible.
+
+Copperline will confirm our position on any further options by the time you need a decision.
+
+Thank you for your cooperation.
+
+Purchasing, Copperline Coffee Machines

@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
-"""specialists.py - the four specialists Brookfield Bicycle Company's coordinators share.
+"""specialists.py - the four specialists a company's coordinators share.
 
-Specialists (each reads its system prompt from week-05/brookfield-bikes/prompts/ on every run):
+The company is a folder (default week-05/brookfield-bikes; choose another with set_org() or --org)
+holding the five CSV files, supplier-emails/ and prompts/. Column names are worked out from each
+header row by company_data.py.
+
+Specialists (each reads its system prompt from the company's prompts/ folder on every run):
   run_analyst(email)                   an agent with the tools of supply_mcp_server.py; stops after
                                        10 tool calls and returns its brief as a dict (parsed JSON)
   write_supplier_reply(email, brief)   one model call; every customer name is removed first
@@ -13,18 +17,21 @@ Review step (what coordinators should call to get a saved draft):
   reviewed_customer_notice(order)
 Each runs the writer, then the reviewer, and revises at most 2 times. Then code checks that no
 customer name is in a supplier draft and no supplier name is in a customer draft. The draft is saved
-in week-05/drafts/ and marked for a person if it fails either check (review or names), or if its
-order has a late penalty (for a supplier reply: any order at risk with a late penalty).
-Nothing is ever sent.
+in week-05/drafts/<company folder name>/ and marked for a person if it fails either check (review or
+names), if its order has a late penalty (for a supplier reply: any order at risk with a late
+penalty), or if the brief has supplier options or decisions for a person. The final draft is then
+printed in full. Nothing is ever sent.
 
-Every handoff between specialists is printed, and so are the tokens each specialist used
-(print_token_report() prints the totals).
+Every handoff between specialists is printed (the analyst's brief in full), and so are the tokens
+each specialist used (print_token_report() prints the totals).
 
 The Anthropic API key is read from API-Key.txt in the folder above the repository. It is passed
 straight to the SDK client and never printed or written to a file.
 
 Try it (from the top of the repository):
   .venv/bin/python week-05/specialists.py --email week-05/brookfield-bikes/supplier-emails/01-northgate-controller-delay.eml
+  .venv/bin/python week-05/specialists.py --org copperline-coffee \\
+      --email week-05/copperline-coffee/supplier-emails/01-danforth-pump-delay.eml
 """
 
 from __future__ import annotations
@@ -32,7 +39,6 @@ from __future__ import annotations
 import argparse
 import asyncio
 import copy
-import csv
 import json
 import re
 import sys
@@ -47,6 +53,8 @@ import anthropic
 from mcp import Client
 from mcp.client.stdio import StdioServerParameters
 
+from company_data import Company, DataError, resolve_org_dir
+
 MODEL = "claude-sonnet-5"
 MAX_TOOL_CALLS = 10
 MAX_REVISIONS = 2
@@ -55,9 +63,7 @@ PREVIEW_CHARS = 400
 
 WEEK_DIR = Path(__file__).resolve().parent
 REPO_DIR = WEEK_DIR.parent
-DATA_DIR = WEEK_DIR / "brookfield-bikes"
-PROMPTS_DIR = DATA_DIR / "prompts"
-DRAFTS_DIR = WEEK_DIR / "drafts"
+DRAFTS_DIR = WEEK_DIR / "drafts"                       # each company's drafts go in a subfolder
 SERVER_SCRIPT = WEEK_DIR / "supply_mcp_server.py"
 API_KEY_FILE = REPO_DIR.parent / "API-Key.txt"          # outside the repo, never committed
 
@@ -74,6 +80,31 @@ class SpecialistError(RuntimeError):
 
 _client: anthropic.Anthropic | None = None
 TOKENS: dict[str, dict[str, int]] = {}      # specialist -> {"calls", "input", "output"}
+COMPANY = Company(resolve_org_dir(None))    # Brookfield unless set_org() is called
+
+
+def set_org(org: str | Path | None) -> Company:
+    """Point every specialist at a company folder (a path, or a folder name in week-05; None = Brookfield).
+    Raises SpecialistError if the folder is missing a file, a prompt, or a column the tools need."""
+    global COMPANY
+    company = Company(resolve_org_dir(org))
+    problems = company.check()
+    if problems:
+        raise SpecialistError("; ".join(problems))
+    COMPANY = company
+    return company
+
+
+def drafts_dir() -> Path:
+    return DRAFTS_DIR / COMPANY.name
+
+
+def print_company() -> None:
+    print(f"Company: {COMPANY.dir}")
+    print("Columns found from each header row:")
+    for line in COMPANY.describe_columns():
+        print(f"  {line}")
+    sys.stdout.flush()
 
 
 def load_api_key() -> str:
@@ -98,28 +129,36 @@ def client() -> anthropic.Anthropic:
 
 def read_prompt(name: str) -> str:
     """Read a system prompt fresh, so edits to the prompt files take effect on the next run."""
-    return (PROMPTS_DIR / f"{name}.txt").read_text(encoding="utf-8").strip()
+    return (COMPANY.prompts_dir / f"{name}.txt").read_text(encoding="utf-8").strip()
 
 
-def read_csv(name: str) -> list[dict[str, str]]:
-    with (DATA_DIR / name).open(newline="", encoding="utf-8-sig") as f:
-        return [{(k or "").strip(): (v or "").strip() for k, v in row.items()} for row in csv.DictReader(f)]
+def table(kind: str) -> list[dict]:
+    """One of the company's CSV files with standard keys (see company_data.py)."""
+    try:
+        return COMPANY.table(kind)
+    except DataError as e:
+        raise SpecialistError(str(e)) from None
 
 
 def customer_names() -> list[str]:
-    return sorted({r["customer"] for r in read_csv("orders.csv") if r["customer"]}, key=len, reverse=True)
+    return sorted({r["customer"] for r in table("orders") if r["customer"]}, key=len, reverse=True)
+
+
+FIRST_WORD_SKIP = {"the", "a", "an", "and"}
 
 
 def supplier_names() -> list[str]:
     """Supplier companies, their contacts, and each company's first word (e.g. 'Northgate')."""
     names: set[str] = set()
-    for r in read_csv("suppliers.csv"):
-        names.update(n for n in (r["supplier"], r["contact_name"], r["supplier"].split()[0]) if n)
+    for r in table("suppliers"):
+        words = r["supplier"].split()
+        first = words[0] if words and words[0].lower() not in FIRST_WORD_SKIP and len(words[0]) >= 4 else ""
+        names.update(n for n in (r["supplier"], r.get("contact_name", ""), first) if n)
     return sorted(names, key=len, reverse=True)
 
 
-def order_row(order_id: str) -> dict[str, str] | None:
-    return next((r for r in read_csv("orders.csv") if r["order_id"] == order_id), None)
+def order_row(order_id: str) -> dict | None:
+    return next((r for r in table("orders") if r["order_id"] == order_id), None)
 
 
 def preview(text: str) -> str:
@@ -127,11 +166,24 @@ def preview(text: str) -> str:
     return text if len(text) <= PREVIEW_CHARS else text[:PREVIEW_CHARS] + "..."
 
 
-def handoff(sender: str, receiver: str, what: str, payload: Any = None) -> None:
+def handoff(sender: str, receiver: str, what: str, payload: Any = None, full: bool = False) -> None:
+    """Print a handoff. The payload is shortened to PREVIEW_CHARS unless full=True."""
     print(f"\n>>> HANDOFF  {sender} -> {receiver}: {what}")
     if payload is not None:
         text = payload if isinstance(payload, str) else json.dumps(payload, ensure_ascii=False, indent=2)
-        print("    " + preview(text).replace("\n", "\n    "))
+        text = text.strip() if full else preview(text)
+        print("    " + text.replace("\n", "\n    "))
+    sys.stdout.flush()
+
+
+def print_final_draft(heading: str, draft: str, needs_person: bool) -> None:
+    """Print a reviewed draft once, in full, after the review step."""
+    print("\n" + "-" * 72)
+    print(heading)
+    print("-" * 72)
+    print(draft.strip())
+    print("-" * 72)
+    print(f"Marked for a person: {'yes' if needs_person else 'no'}")
     sys.stdout.flush()
 
 
@@ -234,7 +286,8 @@ def mcp_result_to_text(result) -> str:
 
 async def _run_analyst(email: dict[str, str]) -> dict:
     system = read_prompt("analyst")
-    server = StdioServerParameters(command=sys.executable, args=[str(SERVER_SCRIPT)], cwd=str(REPO_DIR))
+    server = StdioServerParameters(command=sys.executable,
+                                   args=[str(SERVER_SCRIPT), "--org", str(COMPANY.dir)], cwd=str(REPO_DIR))
     tool_calls = 0
 
     async with Client(server) as mcp:
@@ -296,12 +349,52 @@ async def _run_analyst(email: dict[str, str]) -> dict:
     return brief
 
 
+def _add_order_delays(orders: Any) -> int | None:
+    """Give each order dict days_late = ready_day - ship_day; return the longest (None if none known)."""
+    longest = None
+    for o in orders if isinstance(orders, list) else []:
+        if isinstance(o, dict) and isinstance(o.get("ship_day"), int) and isinstance(o.get("ready_day"), int):
+            o["days_late"] = o["ready_day"] - o["ship_day"]
+            longest = o["days_late"] if longest is None else max(longest, o["days_late"])
+    return longest
+
+
+def add_delays(brief: dict) -> dict:
+    """Work out in code how late each order ships, so no writer or reviewer has to.
+
+    Adds days_late to every order (in orders_at_risk and in each option's orders_at_risk),
+    longest_order_delay_days to the brief and to each option, and a delay_note that separates how
+    late orders ship from how late the part arrives (the two were being confused)."""
+    longest = _add_order_delays(brief.get("orders_at_risk"))
+    brief["longest_order_delay_days"] = longest if longest is not None else 0
+    option_longest = []
+    for opt in brief.get("options") or []:
+        if isinstance(opt, dict):
+            opt_longest = _add_order_delays(opt.get("orders_at_risk"))
+            opt["longest_order_delay_days"] = opt_longest if opt_longest is not None else 0
+            option_longest.append(f"{opt.get('name', 'an option')}: {opt['longest_order_delay_days']}")
+    if longest is None:
+        note = "No order is at risk whatever is chosen (orders_at_risk is empty). "
+    else:
+        note = (f"Orders at risk ship at most {longest} days late "
+                "(longest_order_delay_days; each order's days_late = ready_day - ship_day). ")
+    if option_longest:
+        note += "Under each option, orders ship at most this many days late: " + "; ".join(option_longest) + ". "
+    if longest is not None or option_longest:
+        note += ("This is how late orders ship, which is not the same as how late the part arrives. "
+                 "Use these numbers for any delay to orders.")
+    brief["delay_note"] = note.strip()
+    return brief
+
+
 def run_analyst(email: str | Path | dict) -> dict:
-    """Run the supply analyst on one supplier email; return its brief (a dict)."""
+    """Run the supply analyst on one supplier email; return its brief (a dict), with each order's
+    days late and the longest order delay added in code."""
     email = as_email(email)
     handoff("coordinator", "analyst", f"supplier email {email.get('file', '')}".strip(), email["subject"])
-    brief = asyncio.run(_run_analyst(email))
-    handoff("analyst", "coordinator", "brief", brief)
+    brief = add_delays(asyncio.run(_run_analyst(email)))
+    handoff("analyst", "coordinator", "brief (days_late, longest_order_delay_days and delay_note added in code)",
+            brief, full=True)
     return brief
 
 
@@ -364,15 +457,15 @@ def write_supplier_reply(email: str | Path | dict, brief: dict,
 # ---------------------------------------------------------------------------
 
 def customer_facts(order: dict) -> dict:
-    """The one order's facts for its notice: from the brief, with model and quantity from orders.csv.
+    """The one order's facts for its notice: from the brief, with product and quantity from orders.csv.
     Penalty terms are left out (the writer must not mention them)."""
     row = order_row(order["order_id"]) or {}
     ship_day, ready_day = order.get("ship_day"), order.get("ready_day")
     facts = {
         "order_id": order["order_id"],
         "customer": row.get("customer") or order.get("customer"),
-        "model": row.get("model"),
-        "bikes": int(row["qty"]) if row.get("qty") else None,
+        "product": row.get("product"),
+        "quantity": row.get("quantity"),
         "planned_ship_day": ship_day,
         "expected_ship_day": ready_day,
         "days_late": (ready_day - ship_day) if isinstance(ship_day, int) and isinstance(ready_day, int)
@@ -452,10 +545,11 @@ def write_and_review(write, facts: Any, recipient: str) -> dict:
 
 def save_draft(kind: str, ident: str, to: str, subject: str, result: dict,
                needs_person: bool, reasons: list[str], source: str) -> Path:
-    DRAFTS_DIR.mkdir(exist_ok=True)
+    folder = drafts_dir()
+    folder.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     stem = re.sub(r"[^A-Za-z0-9_-]+", "-", f"{kind}-{ident}").strip("-")
-    path = DRAFTS_DIR / f"{stamp}-{stem}.txt"
+    path = folder / f"{stamp}-{stem}.txt"
     verdict = result["verdict"]
     lines = [
         "DRAFT - NOT SENT",
@@ -503,7 +597,10 @@ def reviewed_supplier_reply(email: str | Path | dict, brief: dict) -> dict:
     leaked = names_found(result["draft"], customer_names())
     if leaked:
         reasons.append("customer name(s) in a supplier draft: " + ", ".join(leaked))
-    penalty = [o.get("order_id") for o in brief.get("orders_at_risk", []) if o.get("late_penalty")]
+    option_orders = [o for opt in brief.get("options") or [] if isinstance(opt, dict)
+                     for o in opt.get("orders_at_risk") or [] if isinstance(o, dict)]
+    penalty = sorted({str(o.get("order_id")) for o in (brief.get("orders_at_risk") or []) + option_orders
+                      if isinstance(o, dict) and o.get("late_penalty")})
     if penalty:
         reasons.append("an order at risk has a late penalty: " + ", ".join(map(str, penalty)))
     pending = pending_decisions(brief)
@@ -516,6 +613,7 @@ def reviewed_supplier_reply(email: str | Path | dict, brief: dict) -> dict:
                       result, bool(reasons), reasons, email.get("file", ""))
     handoff("review step", "coordinator", f"supplier draft saved ({'NEEDS A PERSON' if reasons else 'ok'})",
             str(path))
+    print_final_draft("FINAL DRAFT TO SUPPLIER", result["draft"], bool(reasons))
     return {"path": path, "draft": result["draft"], "needs_person": bool(reasons), "reasons": reasons,
             "verdict": result["verdict"], "revisions": result["revisions"]}
 
@@ -534,7 +632,7 @@ def reviewed_customer_notice(order: dict, source: str = "", brief: dict | None =
     if leaked:
         reasons.append("supplier name(s) in a customer draft: " + ", ".join(leaked))
     row = order_row(order["order_id"]) or {}
-    has_penalty = bool(order.get("late_penalty")) or row.get("late_penalty", "").lower() == "yes"
+    has_penalty = bool(order.get("late_penalty")) or bool(row.get("late_penalty"))
     if has_penalty:
         reasons.append("order has a late penalty")
     pending = pending_decisions(brief)
@@ -547,6 +645,7 @@ def reviewed_customer_notice(order: dict, source: str = "", brief: dict | None =
                       f"Update on your order {facts['order_id']}", result, bool(reasons), reasons, source)
     handoff("review step", "coordinator",
             f"customer draft {facts['order_id']} saved ({'NEEDS A PERSON' if reasons else 'ok'})", str(path))
+    print_final_draft(f"FINAL DRAFT TO CUSTOMER {facts['order_id']}", result["draft"], bool(reasons))
     return {"path": path, "draft": result["draft"], "needs_person": bool(reasons), "reasons": reasons,
             "verdict": result["verdict"], "revisions": result["revisions"]}
 
@@ -556,12 +655,16 @@ def reviewed_customer_notice(order: dict, source: str = "", brief: dict | None =
 # ---------------------------------------------------------------------------
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Run the Brookfield specialists on one supplier email.")
+    parser = argparse.ArgumentParser(description="Run the specialists on one supplier email.")
     parser.add_argument("--email", required=True, type=Path, help="path to one supplier email (.eml)")
+    parser.add_argument("--org", metavar="FOLDER",
+                        help="company folder, or the name of one in week-05 (default: brookfield-bikes)")
     args = parser.parse_args()
 
     print(f"Model: {MODEL}")
     try:
+        set_org(args.org)
+        print_company()
         email = read_email(args.email)
         brief = run_analyst(email)
         outputs = [reviewed_supplier_reply(email, brief)]

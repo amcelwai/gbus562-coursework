@@ -1,0 +1,22 @@
+DRAFT - NOT SENT
+To: owner@kettleandcrumb.example
+Subject: Update on your order O-2204
+Recipient type: customer
+Source email: 01-danforth-pump-delay.eml
+Review: APPROVE after 0 revision(s)
+Needs a person: YES
+  - the brief has decisions for a person; this notice may be wrong until a person decides
+
+Subject: Update on Your Order O-2204
+
+Dear Kettle & Crumb Bakery,
+
+We're writing with an update on order O-2204 for 10 Cafe Duo units. This order is now expected to ship 4 days later than originally planned.
+
+We apologize for this delay. It is due to a delay in a part from one of our suppliers.
+
+We appreciate your patience and will keep you informed of any further updates regarding your order.
+
+Thank you for your understanding.
+
+Customer Service, Copperline Coffee Machines

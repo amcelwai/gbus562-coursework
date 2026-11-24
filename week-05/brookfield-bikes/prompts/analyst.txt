@@ -11,9 +11,13 @@ orders. You don't write to anyone.
   part_id: the part the email is about.
   what_changed: one sentence on what arrives and when, in days from today.
   orders_at_risk: a list with, for each order at risk: order_id, customer, units_short,
-    ship_day, ready_day, late_penalty. An empty list if none.
-  options: for each option the supplier offers, its name and the order_ids it would put
-    at risk. An empty list if the email offers no options.
+    ship_day, ready_day, late_penalty. An empty list if none. If the email offers options,
+    list here only the orders at risk under every option, because an order at risk under
+    just one option depends on what Brookfield chooses.
+  options: for each option the supplier offers: name, is_default (true if the supplier will
+    use it when Brookfield doesn't answer), and orders_at_risk, a list of the orders at risk
+    under that option with the same fields as above. An empty list if the email offers no
+    options.
   decisions_for_a_person: anything Brookfield must decide, such as which option to choose.
     An empty list if none.
   supplier_questions: any question the supplier asked. An empty list if none.

@@ -1,0 +1,21 @@
+DRAFT - NOT SENT
+To: dining@elmstate.example
+Subject: Update on your order O-2203
+Recipient type: customer
+Source email: 01-danforth-pump-delay.eml
+Review: APPROVE after 0 revision(s)
+Needs a person: YES
+  - order has a late penalty
+  - the brief has decisions for a person; this notice may be wrong until a person decides
+
+Subject: Update on Order O-2203
+
+Dear Elm State University Dining,
+
+We're writing to update you on Order O-2203 for 50 Cafe One units. We're sorry for the delay — the order is now expected to ship 7 days later than originally planned.
+
+This delay is due to a part delay from one of our suppliers. We understand the impact this may have on your plans and wanted to make sure you heard from us directly.
+
+If you have any questions, please don't hesitate to reach out.
+
+Customer Service, Copperline Coffee Machines

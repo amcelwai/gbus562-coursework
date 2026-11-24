@@ -1,0 +1,23 @@
+DRAFT - NOT SENT
+To: v.lindqvist@marlowmetal.example
+Subject: Re: PO-5520 - BL-12 boilers - please choose a shipping option
+Recipient type: supplier
+Source email: 02-marlow-boiler-options.eml
+Review: APPROVE after 0 revision(s)
+Needs a person: YES
+  - an order at risk has a late penalty: O-2203, O-2205
+  - the brief has supplier options and decisions for a person; a person must decide before this reply goes out
+
+Hi Victor,
+
+Thanks for the update on PO-5520. To confirm our understanding:
+
+- Option A: 80 boilers on day 7, remaining 120 on day 21 — this would leave one of our orders short by 5 units and shipping 4 days late.
+- Option B: all 200 boilers on day 13 — this would leave one of our orders short by 40 units and shipping 1 day late.
+
+We will confirm our choice within your three-business-day window.
+
+In the meantime, is there any way to increase the quantity shipped on the earlier date, or otherwise shorten either timeline? Any improvement there would help us reduce the impact on our schedule.
+
+Regards,
+Purchasing, Copperline Coffee Machines

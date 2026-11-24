@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
-"""pipeline.py - run Brookfield's specialists on one supplier email, in a fixed order.
+"""pipeline.py - run a company's specialists on one supplier email, in a fixed order.
 
   1. The supply analyst (run_analyst) works out which orders are at risk.
   2. A customer notice for each order at risk (skipped if there are none).
   3. A reply to the supplier.
 
-Every draft goes through the review step in specialists.py (write -> review -> revise at most twice ->
-name check -> save to week-05/drafts/). Nothing is ever sent. At the end the pipeline prints a summary:
+--org names the company folder (default: week-05/brookfield-bikes). Every draft goes through the review
+step in specialists.py (write -> review -> revise at most twice -> name check -> save to
+week-05/drafts/<company folder name>/). Nothing is ever sent. At the end the pipeline prints a summary:
 drafts saved, drafts marked for a person, decisions for a person, and total tokens.
 
 Usage (from the top of the repository):
   .venv/bin/python week-05/pipeline.py --email week-05/brookfield-bikes/supplier-emails/01-northgate-controller-delay.eml
-  .venv/bin/python week-05/pipeline.py --email week-05/brookfield-bikes/supplier-emails/01-northgate-controller-delay.eml \\
-      --save week-05/runs/01-northgate.txt
+  .venv/bin/python week-05/pipeline.py --org week-05/copperline-coffee \\
+      --email week-05/copperline-coffee/supplier-emails/01-danforth-pump-delay.eml \\
+      --save week-05/runs/copperline-01-pipeline.txt
 
 --save also writes everything printed to the named text file (UTF-8).
 """
@@ -74,11 +76,17 @@ def summary(drafts: list[dict], brief: dict | None) -> None:
     sp.print_token_report()
 
 
-def run(email_path: Path) -> int:
+def run(email_path: Path, org: str | None = None) -> int:
     print(f"Email: {email_path}")
     print(f"Model: {sp.MODEL}")
     drafts: list[dict] = []
     brief: dict | None = None
+    try:
+        sp.set_org(org)
+    except sp.SpecialistError as e:
+        print(f"error: {e}", file=sys.stderr)
+        return 1
+    sp.print_company()
     try:
         email = sp.read_email(email_path)
 
@@ -107,15 +115,17 @@ def run(email_path: Path) -> int:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Run Brookfield's specialists on one supplier email.")
+    parser = argparse.ArgumentParser(description="Run a company's specialists on one supplier email.")
     parser.add_argument("--email", required=True, type=Path, help="path to one supplier email (.eml)")
+    parser.add_argument("--org", metavar="FOLDER",
+                        help="company folder, or the name of one in week-05 (default: brookfield-bikes)")
     parser.add_argument("--save", metavar="FILE", type=Path,
                         help="also write everything printed to this text file (UTF-8)")
     args = parser.parse_args()
     email_path = args.email.resolve()
 
     if args.save is None:
-        sys.exit(run(email_path))
+        sys.exit(run(email_path, args.org))
 
     save_path = args.save.resolve()
     save_path.parent.mkdir(parents=True, exist_ok=True)
@@ -123,7 +133,7 @@ def main() -> None:
     with save_path.open("w", encoding="utf-8") as f:
         sys.stdout, sys.stderr = Tee(out, f), Tee(err, f)
         try:
-            code = run(email_path)
+            code = run(email_path, args.org)
         finally:
             sys.stdout, sys.stderr = out, err
     print(f"Output saved to {save_path}")
